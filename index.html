@@ -1,124 +1,766 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang=”en”>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title> Giga Pub Demo</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset=”UTF-8″>
+<meta name=”viewport” content=”width=device-width, initial-scale=1.0, user-scalable=no”>
+<title>Galaxy Mine</title>
+<link rel=”preconnect” href=”https://fonts.googleapis.com”>
+<link rel=”preconnect” href=”https://fonts.gstatic.com” crossorigin>
+<link href=”https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap” rel=”stylesheet”>
+<link rel=”stylesheet” href=”https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css”>
+<script src=”https://telegram.org/js/telegram-web-app.js”></script>
+<style>
+:root {
+–font-main: ‘Poppins’, sans-serif;
+–bg-color: #0d0a1f; /* Deep space blue */
+–primary-glow: #00f2ff;
+–secondary-glow: #ff00f2;
+–text-color: #e0e0e0;
+–text-secondary: #a0a0a0;
+–card-bg: rgba(23, 19, 44, 0.8);
+–border-color: rgba(0, 242, 255, 0.2);
+–border-radius: 16px;
+–transition: all 0.3s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: var(–font-main); }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+background: linear-gradient(135deg, #0d0a1f, #1f0a2e, #0d0a1f);
+background-size: 400% 400%;
+animation: gradientBG 15s ease infinite;
+color: var(–text-color);
+display: flex;
+justify-content: center;
+align-items: center;
+-webkit-tap-highlight-color: transparent;
+}
+
+@keyframes gradientBG {
+0% { background-position: 0% 50%; }
+50% { background-position: 100% 50%; }
+100% { background-position: 0% 50%; }
+}
+
+.app-container {
+width: 100%;
+max-width: 480px;
+height: 100%;
+display: flex;
+flex-direction: column;
+position: relative;
+overflow: hidden;
+backdrop-filter: blur(10px);
+background: rgba(13, 10, 31, 0.5);
+}
+
+/* Top Bar */
+.top-bar {
+padding: 15px 20px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.user-profile { display: flex; align-items: center; gap: 10px; }
+.user-profile img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(–primary-glow); }
+.user-profile span { font-weight: 600; }
+
+/* Points Display */
+.points-container {
+text-align: center;
+padding: 10px 20px;
+}
+.points-balance {
+font-size: 2.5rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+color: #fff;
+text-shadow: 0 0 15px var(–primary-glow);
+}
+.points-balance img { width: 35px; height: 35px; }
+
+/* Tapper Zone */
+.tapper-zone {
+flex-grow: 1;
+display: flex;
+justify-content: center;
+align-items: center;
+position: relative;
+}
+.tapper-object {
+width: 250px;
+height: 250px;
+cursor: pointer;
+position: relative;
+transition: transform 0.1s ease-out;
+}
+.tapper-object:active {
+transform: scale(0.95);
+}
+#crystal-svg {
+width: 100%; height: 100%;
+filter: drop-shadow(0 0 20px var(–primary-glow));
+animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+0% { transform: translateY(0px); }
+50% { transform: translateY(-20px); }
+100% { transform: translateY(0px); }
+}
+.floating-text {
+position: absolute;
+font-size: 1.8rem;
+font-weight: 600;
+color: var(–primary-glow);
+user-select: none;
+pointer-events: none;
+opacity: 1;
+animation: floatUp 1.5s ease-out forwards;
+text-shadow: 0 0 10px var(–primary-glow);
+}
+@keyframes floatUp {
+to {
+transform: translateY(-100px);
+opacity: 0;
+}
+}
+
+/* Bottom Bar */
+.bottom-bar { padding: 15px 20px; }
+.energy-bar-container {
+width: 100%;
+background: rgba(0,0,0,0.3);
+border-radius: 10px;
+height: 15px;
+border: 1px solid var(–border-color);
+margin-bottom: 15px;
+overflow: hidden;
+}
+.energy-bar-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–secondary-glow), var(–primary-glow));
+border-radius: 10px;
+transition: width 0.5s ease;
+}
+.energy-info {
+display: flex;
+justify-content: space-between;
+font-size: 0.8rem;
+color: var(–text-secondary);
+}
+
+.bottom-nav {
+display: flex;
+justify-content: space-around;
+align-items: center;
+background: var(–card-bg);
+border-radius: var(–border-radius);
+padding: 10px 0;
+margin-top: 10px;
+border: 1px solid var(–border-color);
+}
+.nav-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 5px;
+color: var(–text-secondary);
+font-size: 0.7rem;
+cursor: pointer;
+transition: var(–transition);
+}
+.nav-item:hover { color: var(–primary-glow); transform: translateY(-5px); }
+.nav-item i { font-size: 1.5rem; }
+
+/* Modal */
+.modal-overlay {
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(0,0,0,0.5);
+backdrop-filter: blur(5px);
+z-index: 100;
+display: flex;
+justify-content: center;
+align-items: flex-end;
+opacity: 0; pointer-events: none;
+transition: opacity 0.3s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-content {
+background: var(–bg-color);
+width: 100%;
+padding: 20px;
+border-radius: var(–border-radius) var(–border-radius) 0 0;
+border-top: 2px solid var(–primary-glow);
+transform: translateY(100%);
+transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.modal-overlay.show .modal-content { transform: translateY(0); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 1.5rem; font-weight: 600; color: #fff; }
+.close-modal-btn { background: none; border: none; color: var(–text-secondary); font-size: 1.5rem; cursor: pointer; }
+
+/* Boosts */
+.boost-list { display: flex; flex-direction: column; gap: 15px; }
+.boost-item {
+display: flex; align-items: center; justify-content: space-between;
+background: var(–card-bg);
+padding: 15px;
+border-radius: 10px;
+border: 1px solid var(–border-color);
+}
+.boost-info { display: flex; align-items: center; gap: 15px; }
+.boost-icon { font-size: 1.5rem; color: var(–primary-glow); }
+.boost-details h4 { font-size: 1rem; color: #fff; }
+.boost-details p { font-size: 0.8rem; color: var(–text-secondary); }
+.buy-boost-btn {
+background: linear-gradient(90deg, var(–secondary-glow), var(–primary-glow));
+color: #0d0a1f;
+border: none;
+padding: 10px 15px;
+border-radius: 8px;
+font-weight: 600;
+cursor: pointer;
+transition: var(–transition);
+}
+.buy-boost-btn:hover { transform: scale(1.05); }
+.buy-boost-btn:disabled { background: #555; cursor: not-allowed; }
+
+/* Tasks & Referrals */
+.task-list, .referral-content, .wallet-content {
+display: flex; flex-direction: column; gap: 15px;
+}
+.task-item, .referral-item, .wallet-info {
+background: var(–card-bg);
+padding: 15px;
+border-radius: 10px;
+border: 1px solid var(–border-color);
+display: flex;
+align-items: center;
+}
+.task-item .task-info { display: flex; align-items: center; gap: 15px; }
+.task-item .task-info i { font-size: 1.5rem; color: var(–primary-glow); }
+.task-item .task-details h4 { font-size: 1rem; color: #fff; }
+.task-item .task-details p { font-size: 0.8rem; color: var(–text-secondary); }
+.task-item .task-btn {
+margin-left: auto;
+padding: 8px 12px;
+background: var(–primary-glow);
+color: var(–bg-color);
+border: none;
+border-radius: 5px;
+font-weight: 600;
+cursor: pointer;
+}
+.task-item .task-btn a { text-decoration: none; color: inherit; }
+
+.referral-content p, .wallet-content p { color: var(–text-secondary); margin-bottom: 10px; }
+.referral-link-container, .wallet-balance-container {
+padding: 15px;
+background: rgba(0,0,0,0.3);
+border: 1px solid var(–border-color);
+border-radius: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+}
+.referral-link {
+flex-grow: 1;
+font-size: 0.9rem;
+color: var(–primary-glow);
+word-break: break-all;
+}
+.copy-btn {
+background: var(–primary-glow);
+color: var(–bg-color);
+border: none;
+padding: 8px 12px;
+border-radius: 5px;
+font-weight: 600;
+cursor: pointer;
+margin-left: 10px;
+}
+
+.wallet-info h4 { font-size: 1.2rem; margin-bottom: 5px; }
+.wallet-info p { font-size: 1.8rem; font-weight: 700; color: #fff; }
+.wallet-withdraw-btn {
+background: #555;
+color: var(–text-color);
+border: none;
+padding: 12px 20px;
+border-radius: 8px;
+font-weight: 600;
+cursor: not-allowed;
+margin-top: 15px;
+width: 100%;
+text-align: center;
+}
+
+</style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body>
+<div class=”app-container”>
+<div class=”top-bar”>
+<div class=”user-profile”>
+<img id=”profilePic” src=”https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png” alt=”P”>
+<span id=”profileName”>Loading…</span>
+</div>
+<div class=”nav-item” id=”walletBtn”><i class=”fas fa-wallet”></i></div>
+</div>
 
-<header class="bg-gradient-to-r from-purple-700 to-pink-500 text-white p-4 flex items-center space-x-4 shadow-lg">
-  <img id="userPhoto" src="https://via.placeholder.com/50" class="w-12 h-12 rounded-full border-2 border-white"/>
-  <div>
-    <h1 id="userName" class="text-lg font-bold">Guest User</h1>
-    <p id="userUsername" class="text-sm opacity-80">@guest</p>
-  </div>
-</header>
+<div class=”points-container”>
+<div class=”points-balance”>
+<img src=”data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0yNTYgMEMxMTQuNjE1IDAgMCAxMTQuNjE1IDAgMjU2QzAgMzk3LjM4NSAxMTQuNjE1IDUxMiAyNTYgNTEyQzM5Ny4zODUgNTEyIDUxMiAzOTcuMzg1IDUxMiAyNTZDNTExLjgyNyAxMTQuNjg4IDM5Ny4zMTIgMC4wNzgwMzc1IDI1NiAweiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzEwMl8xMikiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8xMDJfMTIiIHgxPSIyNTYiIHkxPSIwIiB4Mj0iMjU2IiB5Mj0iNTEyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMwMEZBRkYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDBGMkZGIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==” alt=”Coin”>
+<span id=”pointsBalance”>0</span>
+</div>
+</div>
 
-<main class="p-4 flex-grow max-w-3xl mx-auto w-full space-y-4">
-  <section class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <p class="text-sm text-gray-500">মোট ব্যালেন্স</p>
-      <p id="balance" class="text-2xl font-bold text-purple-700">0.00 ৳</p>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <p class="text-sm text-gray-500">মোট অ্যাড</p>
-      <p id="totalAds" class="text-2xl font-bold text-pink-600">0</p>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <p class="text-sm text-gray-500">টাস্ক সম্পন্ন</p>
-      <p id="tasks" class="text-2xl font-bold text-purple-700">0</p>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow text-center">
-      <p class="text-sm text-gray-500">দেখা অ্যাড</p>
-      <p id="adsWatched" class="text-2xl font-bold text-pink-600">0</p>
-    </div>
-  </section>
-
-  <section class="bg-white p-6 rounded-xl shadow text-center">
-    <p class="mb-4 text-lg font-semibold text-gray-600">বিজ্ঞাপন দেখে আয় করুন</p>
-    <button id="watchAd" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-4 px-6 rounded-lg shadow-lg w-full max-w-xs mx-auto">
-      🎥 বিজ্ঞাপন দেখুন
-    </button>
-  </section>
-  
-  <section class="grid sm:grid-cols-3 gap-4">
-  <a href="https://t.me/trickmimicrojob" target="_blank" class="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 transition transform rounded-xl shadow-lg p-6 flex flex-col items-center text-white text-center">
-    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" class="w-12 h-12 mb-3" alt="Telegram"/>
-    <h3 class="font-bold text-lg">Join Telegram 1</h3>
-    <p class="text-sm opacity-80">Stay updated with latest ads</p>
-  </a>
-
-  <a href="https://t.me/earn_money_backup" target="_blank" class="bg-gradient-to-r from-blue-500 to-blue-700 hover:scale-105 transition transform rounded-xl shadow-lg p-6 flex flex-col items-center text-white text-center">
-    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" class="w-12 h-12 mb-3" alt="Telegram"/>
-    <h3 class="font-bold text-lg">Join Telegram 2</h3>
-    <p class="text-sm opacity-80">Get more files</p>
-  </a>
-
-  <a href="https://youtube.com/@the-eduverse?si=jxOr60jPz7779AeE" target="_blank" class="bg-gradient-to-r from-red-500 to-red-700 hover:scale-105 transition transform rounded-xl shadow-lg p-6 flex flex-col items-center text-white text-center">
-    <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" class="w-12 h-12 mb-3" alt="YouTube"/>
-    <h3 class="font-bold text-lg">Subscribe YouTube</h3>
-    <p class="text-sm opacity-80">The Eduverse yt Channel</p>
-  </a>
-</section>
-
+<main class=”tapper-zone” id=”tapperZone”>
+<div class=”tapper-object” id=”tapperObject”>
+<svg id=”crystal-svg” viewBox=”0 0 200 200″ xmlns=”http://www.w3.org/2000/svg”>
+<defs>
+<linearGradient id=”crystalGrad” x1=”0%” y1=”0%” x2=”0%” y2=”100%”>
+<stop offset=”0%” style=”stop-color:rgb(0,242,255);stop-opacity:1″ />
+<stop offset=”100%” style=”stop-color:rgb(255,0,242);stop-opacity:1″ />
+</linearGradient>
+<filter id=”glow”>
+<feGaussianBlur stdDeviation=”3.5″ result=”coloredBlur”/>
+<feMerge>
+<feMergeNode in=”coloredBlur”/>
+<feMergeNode in=”SourceGraphic”/>
+</feMerge>
+</filter>
+</defs>
+<path fill=”url(#crystalGrad)” filter=”url(#glow)” transform=”translate(100, 100)” d=”M54.5,-23.1C65.5,0.7,65.8,29.9,49.8,47.4C33.8,64.9,1.5,70.7,-27,62.8C-55.5,54.9,-80.2,33.3,-84.6,6.3C-89,-20.7,-73.1,-43,-53.4,-51.7C-33.7,-60.4,-10.2,-55.5,10.6,-45.7C31.4,-35.9,43.4,-21.2,54.5,-23.1Z” />
+</svg>
+</div>
 </main>
 
+<footer class=”bottom-bar”>
+<div class=”energy-info”>
+<span><i class=”fas fa-bolt”></i> Energy</span>
+<span id=”energyDisplay”>0 / 0</span>
+</div>
+<div class=”energy-bar-container”>
+<div class=”energy-bar-fill” id=”energyBarFill”></div>
+</div>
+<div class=”bottom-nav”>
+<div class=”nav-item” id=”boostsBtn”><i class=”fas fa-rocket”></i><span>Boosts</span></div>
+<div class=”nav-item” id=”tasksBtn”><i class=”fas fa-tasks”></i><span>Tasks</span></div>
+<div class=”nav-item” id=”friendsBtn”><i class=”fas fa-users”></i><span>Friends</span></div>
+</div>
+</footer>
+</div>
+
+<div class=”modal-overlay” id=”boostsModal”>
+<div class=”modal-content”>
+<div class=”modal-header”>
+<h3 class=”modal-title”>Boosts</h3>
+<button class=”close-modal-btn”>&times;</button>
+</div>
+<div class=”boost-list” id=”boostListContainer”></div>
+</div>
+</div>
+
+<div class=”modal-overlay” id=”tasksModal”>
+<div class=”modal-content”>
+<div class=”modal-header”>
+<h3 class=”modal-title”>Tasks</h3>
+<button class=”close-modal-btn”>&times;</button>
+</div>
+<div class=”task-list” id=”taskListContainer”></div>
+</div>
+</div>
+
+<div class=”modal-overlay” id=”referralsModal”>
+<div class=”modal-content”>
+<div class=”modal-header”>
+<h3 class=”modal-title”>Invite Friends</h3>
+<button class=”close-modal-btn”>&times;</button>
+</div>
+<div class=”referral-content”>
+<p>Invite your friends to earn bonuses!</p>
+<div class=”referral-link-container”>
+<span id=”referralLink” class=”referral-link”></span>
+<button class=”copy-btn” id=”copyReferralBtn”>Copy</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class=”modal-overlay” id=”walletModal”>
+<div class=”modal-content”>
+<div class=”modal-header”>
+<h3 class=”modal-title”>My Wallet</h3>
+<button class=”close-modal-btn”>&times;</button>
+</div>
+<div class=”wallet-content”>
+<p>Total Points:</p>
+<div class=”wallet-info”>
+<div class=”points-balance”>
+<img src=”data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0yNTYgMEMxMTQuNjE1IDAgMCAxMTQuNjE1IDAgMjU2QzAgMzk3LjM4NSAxMTQuNjE1IDUxMiAyNTYgNTEyQzM5Ny4zODUgNTEyIDUxMiAzOTcuMzg1IDUxMiAyNTZDNTExLjgyNyAxMTQuNjg4IDM5Ny4zMTIgMC4wNzgwMzc1IDI1NiAweiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzEwMl8xMikiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8xMDJfMTIiIHgxPSIyNTYiIHk9IjAiIHgyPSIyNTYiIHkyPSI1MTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzAwRkFGRiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMEYyRkYiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4KPC9zdmc+Cg==” alt=”Coin”>
+<span id=”walletPointsBalance”>0</span>
+</div>
+</div>
+<button class=”wallet-withdraw-btn” disabled>Withdraw (Coming Soon)</button>
+</div>
+</div>
+</div>
+
 <script>
-let user = { id:"guest", name:"Guest", username:"guest", photo:"https://via.placeholder.com/50", balance:0, totalAds:0, tasks:0, adsWatched:0 };
+// — DOM ELEMENTS —
+const profilePic = document.getElementById(‘profilePic’);
+const profileName = document.getElementById(‘profileName’);
+const pointsBalance = document.getElementById(‘pointsBalance’);
+const tapperZone = document.getElementById(‘tapperZone’);
+const tapperObject = document.getElementById(‘tapperObject’);
+const energyDisplay = document.getElementById(‘energyDisplay’);
+const energyBarFill = document.getElementById(‘energyBarFill’);
+const boostsBtn = document.getElementById(‘boostsBtn’);
+const tasksBtn = document.getElementById(‘tasksBtn’);
+const friendsBtn = document.getElementById(‘friendsBtn’);
+const walletBtn = document.getElementById(‘walletBtn’);
 
-if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-  let tg = window.Telegram.WebApp.initDataUnsafe.user;
-  user.id = tg.id.toString();
-  user.name = tg.first_name + (tg.last_name ? " " + tg.last_name : "");
-  user.username = tg.username || "guest";
-  user.photo = tg.photo_url || "https://via.placeholder.com/50";
+const boostsModal = document.getElementById(‘boostsModal’);
+const tasksModal = document.getElementById(‘tasksModal’);
+const referralsModal = document.getElementById(‘referralsModal’);
+const walletModal = document.getElementById(‘walletModal’);
+
+const boostListContainer = document.getElementById(‘boostListContainer’);
+const taskListContainer = document.getElementById(‘taskListContainer’);
+const referralLinkEl = document.getElementById(‘referralLink’);
+const copyReferralBtn = document.getElementById(‘copyReferralBtn’);
+const walletPointsBalance = document.getElementById(‘walletPointsBalance’);
+
+// — GAME CONFIG —
+const STORAGE_KEY = ‘galaxyMineUserData_v2’; // Changed key for new version
+const BOOSTS_CONFIG = {
+multitap: { name: “Multitap”, icon: “fa-hand-pointer”, description: “Increase points per tap”, baseCost: 50, levelMultiplier: 2 },
+energyLimit: { name: “Energy Limit”, icon: “fa-battery-full”, description: “Increase max energy”, baseCost: 100, levelMultiplier: 2.5 },
+rechargeSpeed: { name: “Recharge Speed”, icon: “fa-forward”, description: “Increase energy recharge rate”, baseCost: 200, levelMultiplier: 3 }
+};
+
+const TASKS_CONFIG = [
+{ name: “Follow us on Telegram”, icon: “fa-telegram-plane”, link: “https://t.me/your_telegram_channel”, reward: 5000 },
+{ name: “Subscribe on YouTube”, icon: “fa-youtube”, link: “https://youtube.com/your_channel”, reward: 7500 },
+{ name: “Follow us on Twitter”, icon: “fa-twitter”, link: “https://twitter.com/your_profile”, reward: 6000 },
+{ name: “Like our Facebook page”, icon: “fa-facebook”, link: “https://facebook.com/your_page”, reward: 4000 },
+{ name: “Watch an Ad”, icon: “fa-ad”, link: “https://monetag.com/your_ad_link”, reward: 3000 }
+];
+
+let REFERRAL_CODE = ‘YOUR_CUSTOM_REFERRAL_CODE’; // REFERRAL LINK KORAR JONNO KOTHAY CHAGE KORTE HOBE
+
+// — USER STATE —
+let currentUser = {
+name: ‘Guest’,
+photoUrl: ‘https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png’,
+points: 0,
+energy: 500,
+maxEnergy: 500,
+tapsPerTap: 1,
+energyRechargeRate: 1, // per second
+lastUpdateTimestamp: Date.now(),
+boosts: {
+multitap: 1,
+energyLimit: 1,
+rechargeSpeed: 1
+},
+completedTasks: [] // To keep track of completed tasks
+};
+
+// — CORE GAME LOGIC —
+document.addEventListener(‘DOMContentLoaded’, initGame);
+
+function initGame() {
+loadUserState();
+initTelegramData();
+
+// Attach event listeners
+tapperObject.addEventListener(‘mousedown’, handleTap);
+tapperObject.addEventListener(‘touchstart’, handleTap, { passive: true });
+
+boostsBtn.addEventListener(‘click’, () => openModal(boostsModal));
+tasksBtn.addEventListener(‘click’, () => openModal(tasksModal));
+friendsBtn.addEventListener(‘click’, () => openModal(referralsModal));
+walletBtn.addEventListener(‘click’, () => openModal(walletModal));
+
+document.querySelectorAll(‘.close-modal-btn’).forEach(btn => btn.addEventListener(‘click’, () => closeModal(btn.closest(‘.modal-overlay’))));
+
+// Start game loop
+setInterval(gameLoop, 1000);
+
+updateAllUI();
 }
-document.getElementById("userName").innerText = user.name;
-document.getElementById("userUsername").innerText = "@" + user.username;
-document.getElementById("userPhoto").src = user.photo;
 
-// Load Zone ID dynamically
-fetch("zone.json").then(r=>r.json()).then(data=>{
-  let script = document.createElement("script");
-  script.src = `https://ad.gigapub.tech/script?id=${data.zoneId}`;
-  document.body.appendChild(script);
-});
-
-// Load user from users.json if exists
-fetch("users.json").then(r=>r.json()).then(users=>{
-  if(users[user.id]){
-    user = users[user.id];
-  }
-  updateUI();
-});
-
-document.getElementById("watchAd").addEventListener("click",()=>{
-  window.showGiga().then(()=>{
-    user.totalAds++;
-    user.adsWatched++;
-    user.balance += 0.1; 
-    saveUser();
-    updateUI();
-  }).catch(()=>alert("Ad failed"));
-});
-
-function updateUI(){
-  document.getElementById("balance").innerText = user.balance.toFixed(2)+" ৳";
-  document.getElementById("totalAds").innerText = user.totalAds;
-  document.getElementById("tasks").innerText = user.tasks;
-  document.getElementById("adsWatched").innerText = user.adsWatched;
+function loadUserState() {
+const savedData = localStorage.getItem(STORAGE_KEY);
+if (savedData) {
+currentUser = JSON.parse(savedData);
+}
+// Calculate offline progress
+calculateOfflineProgress();
+saveUserState();
 }
 
-function saveUser(){
-  fetch("save_user.php",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(user)
-  });
+function saveUserState() {
+currentUser.lastUpdateTimestamp = Date.now();
+localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
 }
+
+function initTelegramData() {
+const tg = window.Telegram?.WebApp;
+if (tg?.initDataUnsafe?.user) {
+const user = tg.initDataUnsafe.user;
+currentUser.name = `${user.first_name || ”} ${user.last_name || ”}`.trim() || `User${user.id}`;
+if(user.photo_url) currentUser.photoUrl = user.photo_url;
+// Optionally, use a unique ID for referral
+if(user.id) {
+REFERRAL_CODE = user.id;
+}
+}
+updateProfileUI();
+}
+
+function calculateOfflineProgress() {
+const now = Date.now();
+const elapsedSeconds = Math.floor((now – currentUser.lastUpdateTimestamp) / 1000);
+const energyRecharged = elapsedSeconds * currentUser.energyRechargeRate;
+currentUser.energy = Math.min(currentUser.maxEnergy, currentUser.energy + energyRecharged);
+currentUser.lastUpdateTimestamp = now;
+}
+
+function gameLoop() {
+// Recharge energy
+if (currentUser.energy < currentUser.maxEnergy) {
+currentUser.energy = Math.min(currentUser.maxEnergy, currentUser.energy + currentUser.energyRechargeRate);
+updateEnergyUI();
+}
+// Periodic save
+if (Date.now() – currentUser.lastUpdateTimestamp > 5000) {
+saveUserState();
+}
+}
+
+// — EVENT HANDLERS —
+function handleTap(event) {
+if (currentUser.energy <= 0) return;
+
+const taps = event.type === ‘touchstart’ ? event.touches.length : 1;
+const energyToSpend = currentUser.tapsPerTap * taps;
+
+if (currentUser.energy < energyToSpend) return;
+
+currentUser.energy -= energyToSpend;
+currentUser.points += energyToSpend;
+
+updatePointsUI();
+updateEnergyUI();
+
+// Visual feedback
+if (event.type === ‘touchstart’) {
+for (let i = 0; i < event.touches.length; i++) {
+createFloatingText(event.touches[i].clientX, event.touches[i].clientY);
+}
+} else {
+createFloatingText(event.clientX, event.clientY);
+}
+}
+
+// — UI UPDATE FUNCTIONS —
+function updateAllUI() {
+updateProfileUI();
+updatePointsUI();
+updateEnergyUI();
+updateWalletUI();
+}
+
+function updateProfileUI() {
+profilePic.src = currentUser.photoUrl;
+profileName.textContent = currentUser.name;
+}
+
+function updatePointsUI() {
+pointsBalance.textContent = Math.floor(currentUser.points).toLocaleString();
+}
+
+function updateEnergyUI() {
+energyDisplay.textContent = `${Math.floor(currentUser.energy)} / ${currentUser.maxEnergy}`;
+const energyPercentage = (currentUser.energy / currentUser.maxEnergy) * 100;
+energyBarFill.style.width = `${energyPercentage}%`;
+}
+
+function updateWalletUI() {
+walletPointsBalance.textContent = Math.floor(currentUser.points).toLocaleString();
+}
+
+function createFloatingText(x, y) {
+const textEl = document.createElement(‘div’);
+textEl.className = ‘floating-text’;
+textEl.textContent = `+${currentUser.tapsPerTap}`;
+
+const rect = tapperZone.getBoundingClientRect();
+textEl.style.left = `${x – rect.left}px`;
+textEl.style.top = `${y – rect.top}px`;
+
+tapperZone.appendChild(textEl);
+
+setTimeout(() => {
+textEl.remove();
+}, 1500);
+}
+
+// — MODAL & BOOSTS LOGIC —
+function openModal(modal) {
+switch (modal.id) {
+case ‘boostsModal’:
+renderBoosts();
+break;
+case ‘tasksModal’:
+renderTasks();
+break;
+case ‘referralsModal’:
+renderReferrals();
+break;
+case ‘walletModal’:
+updateWalletUI();
+break;
+}
+modal.classList.add(‘show’);
+}
+
+function closeModal(modal) {
+modal.classList.remove(‘show’);
+}
+
+// Boosts Logic
+function renderBoosts() {
+boostListContainer.innerHTML = ”;
+for (const key in BOOSTS_CONFIG) {
+const boost = BOOSTS_CONFIG[key];
+const level = currentUser.boosts[key];
+const cost = Math.floor(boost.baseCost * Math.pow(boost.levelMultiplier, level – 1));
+
+const boostEl = document.createElement(‘div’);
+boostEl.className = ‘boost-item’;
+boostEl.innerHTML = `
+<div class=”boost-info”>
+<i class=”fas ${boost.icon} boost-icon”></i>
+<div class=”boost-details”>
+<h4>${boost.name}</h4>
+<p>Level ${level}</p>
+</div>
+</div>
+<button class=”buy-boost-btn” data-boost-key=”${key}” data-cost=”${cost}”>
+${cost.toLocaleString()} <i class=”fas fa-coins”></i>
+</button>
+`;
+boostListContainer.appendChild(boostEl);
+}
+// Add event listeners to new buttons
+document.querySelectorAll(‘.buy-boost-btn’).forEach(btn => {
+btn.addEventListener(‘click’, handleBuyBoost);
+});
+}
+
+function handleBuyBoost(event) {
+const btn = event.currentTarget;
+const key = btn.dataset.boostKey;
+const cost = parseInt(btn.dataset.cost);
+
+if (currentUser.points < cost) {
+alert(“Not enough points!”);
+return;
+}
+
+currentUser.points -= cost;
+currentUser.boosts[key]++;
+
+// Apply boost effect
+switch(key) {
+case ‘multitap’:
+currentUser.tapsPerTap = currentUser.boosts.multitap;
+break;
+case ‘energyLimit’:
+currentUser.maxEnergy = 500 + (currentUser.boosts.energyLimit – 1) * 200; // Increase max energy by 200 for each level
+break;
+case ‘rechargeSpeed’:
+currentUser.energyRechargeRate = 1 + (currentUser.boosts.rechargeSpeed – 1) * 0.5; // Increase rate by 0.5 for each level
+break;
+}
+
+saveUserState();
+updateAllUI();
+renderBoosts(); // Re-render boosts to show new levels and costs
+}
+
+// Tasks Logic
+function renderTasks() {
+taskListContainer.innerHTML = ”;
+TASKS_CONFIG.forEach((task, index) => {
+const isCompleted = currentUser.completedTasks.includes(index);
+const taskEl = document.createElement(‘div’);
+taskEl.className = ‘task-item’;
+taskEl.innerHTML = `
+<div class=”task-info”>
+<i class=”fab ${task.icon}”></i>
+<div class=”task-details”>
+<h4>${task.name}</h4>
+<p>+${task.reward.toLocaleString()} Points</p>
+</div>
+</div>
+<button class=”task-btn” data-task-index=”${index}” ${isCompleted ? ‘disabled’ : ”}>
+${isCompleted ? ‘Done’ : ‘Claim’}
+</button>
+`;
+taskListContainer.appendChild(taskEl);
+});
+document.querySelectorAll(‘.task-btn’).forEach(btn => {
+btn.addEventListener(‘click’, handleTaskCompletion);
+});
+}
+
+function handleTaskCompletion(event) {
+const btn = event.currentTarget;
+const taskIndex = parseInt(btn.dataset.taskIndex);
+const task = TASKS_CONFIG[taskIndex];
+
+if (currentUser.completedTasks.includes(taskIndex)) {
+return; // Already completed
+}
+
+// A real implementation would verify this action
+// For this example, we just simulate it
+
+// Open the link for the user
+window.open(task.link, ‘_blank’);
+
+// Add reward and mark as completed after a delay or user confirmation
+// For this example, we immediately give the reward and mark it as done.
+currentUser.points += task.reward;
+currentUser.completedTasks.push(taskIndex);
+
+saveUserState();
+updateAllUI();
+renderTasks();
+}
+
+// Referrals Logic
+function renderReferrals() {
+const referralUrl = `https://t.me/your_bot_name?start=${REFERRAL_CODE}`; // Change ‘your_bot_name’
+referralLinkEl.textContent = referralUrl;
+copyReferralBtn.addEventListener(‘click’, () => {
+navigator.clipboard.writeText(referralUrl).then(() => {
+alert(“Referral link copied to clipboard!”);
+});
+});
+}
+
 </script>
 </body>
 </html>
