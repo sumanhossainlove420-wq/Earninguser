@@ -3,390 +3,627 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Downloader</title>
-    <!-- Tailwind CSS for styling -->
+    <title>CashReward App</title>
+    
+    <!-- Aapka Naya Ad Code -->
+    <script src='//libtl.com/sdk.js' data-zone='9391539' data-sdk='show_9391539'></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Ad SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='9745051' data-sdk='show_9745051'></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom styles for animations and aesthetics */
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; }
+        .dark-bg { background-color: #121212; }
+        .card-bg { background-color: #1e1e1e; }
+        .border-accent { border-color: #ff8c00; }
+        .text-accent { color: #ff8c00; }
+        .btn, .btn-accent, .btn-outline-accent { transition: all 0.2s ease-in-out; transform: scale(1); }
+        .btn:active, .btn-accent:active, .btn-outline-accent:active { transform: scale(0.95); }
+        .btn-accent { background-color: #ff8c00; color: #121212; font-weight: bold; }
+        .btn-accent:hover { background-color: #e67e00; }
+        .btn-outline-accent { border: 1px solid #ff8c00; color: #ff8c00; }
+        .btn-outline-accent:hover { background-color: #ff8c00; color: #121212; }
+        .input-field { background-color: #2c2c2c; border: 1px solid #444; }
+        .main-page { display: none; }
+        .main-page.active { display: flex; animation: fadeIn 0.5s ease-in-out; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        .bottom-nav a.active { color: #ff8c00; }
+        .notification-dot {
+            position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
+            background-color: #ef4444; border-radius: 50%; border: 2px solid #121212; display: none;
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
-        .slide-up { animation: slideUp 0.6s ease-out forwards; opacity: 0; }
-        .animation-delay-200 { animation-delay: 0.2s; }
-        .animation-delay-400 { animation-delay: 0.4s; }
-        .slider-container { position: relative; overflow: hidden; }
-        .slider-wrapper { display: flex; transition: transform 0.5s ease-in-out; }
-        .slider-item { min-width: 100%; box-sizing: border-box; }
-        .slider-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
-        .slider-dot { width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.5); cursor: pointer; transition: background-color 0.3s; }
-        .slider-dot.active { background-color: white; }
-        body { scrollbar-width: none; }
-        body::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="max-w-md mx-auto">
 
-    <div id="app" class="container mx-auto p-4 max-w-7xl">
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-xl shadow-lg mb-8 fade-in">
-            <h1 data-key="main_title" class="text-4xl font-extrabold text-center mb-4">Webapp Sikho</h1>
-            <p data-key="main_subtitle" class="text-center text-lg text-blue-100 mb-6">Watch Ads, Unlock, and Download Files for Free!</p>
-            <div class="max-w-2xl mx-auto">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
-                    </div>
-                    <input type="text" id="searchInput" data-key-placeholder="search_placeholder" placeholder="Search for files..." class="w-full p-3 pl-10 rounded-full bg-white text-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-shadow duration-300">
+    <!-- App Loader -->
+    <div id="loader" class="hidden fixed inset-0 dark-bg bg-opacity-75 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-accent"></div>
+    </div>
+
+    <!-- Authentication Section -->
+    <div id="auth-section" class="min-h-screen p-6 flex-col justify-center main-page">
+        <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
+        <p class="text-center text-gray-400 mb-8">Jaari rakhne ke liye Login ya Signup karein</p>
+        <div id="auth-container">
+            <div id="login-view">
+                <input id="login-email" type="email" placeholder="Email" class="w-full p-3 rounded-lg input-field mb-4">
+                <input id="login-password" type="password" placeholder="Password" class="w-full p-3 rounded-lg input-field mb-4">
+                <button id="login-btn" class="w-full p-3 rounded-lg btn-accent mb-4">Login</button>
+                <p class="text-center text-gray-400">Account nahi hai? <a href="#" id="show-signup" class="font-semibold text-accent">Sign Up</a></p>
+            </div>
+            <div id="signup-view" class="hidden">
+                 <input id="signup-name" type="text" placeholder="Poora Naam" class="w-full p-3 rounded-lg input-field mb-4">
+                <input id="signup-email" type="email" placeholder="Email" class="w-full p-3 rounded-lg input-field mb-4">
+                <input id="signup-password" type="password" placeholder="Password" class="w-full p-3 rounded-lg input-field mb-4">
+                <button id="signup-btn" class="w-full p-3 rounded-lg btn-accent mb-4">Sign Up</button>
+                <p class="text-center text-gray-400">Pehle se account hai? <a href="#" id="show-login" class="font-semibold text-accent">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="min-h-screen flex-col main-page">
+        <header class="flex items-center justify-between p-4 sticky top-0 bg-opacity-80 backdrop-blur-md z-10 dark-bg">
+            <h1 class="text-xl font-bold">CashReward</h1>
+            <div class="flex items-center space-x-4">
+                <div id="notification-bell" class="relative cursor-pointer">
+                    <i data-lucide="bell" class="w-6 h-6"></i>
+                    <div id="notification-dot" class="notification-dot"></div>
                 </div>
+                <i data-lucide="user" class="w-6 h-6 cursor-pointer" onclick="navigateTo('profile-page')"></i>
             </div>
         </header>
 
-        <!-- Ad Slot 1 -->
-        <div id="ad-container-1" class="my-6 flex justify-center min-h-[50px]"></div>
-
-        <!-- Image Slider -->
-        <div id="slider" class="slider-container w-full h-48 md:h-80 bg-gray-300 rounded-xl shadow-lg mb-10 slide-up animation-delay-200">
-            <div id="slider-wrapper" class="slider-wrapper h-full"></div>
-            <div id="slider-dots" class="slider-dots"></div>
-        </div>
-
-        <!-- Ad Slot 2 -->
-        <div id="ad-container-2" class="my-6 flex justify-center min-h-[50px]"></div>
-
-
-        <!-- Files Section -->
-        <div class="slide-up animation-delay-400">
-            <h2 data-key="available_files" class="text-3xl font-bold text-gray-800 mb-6 border-b-4 border-blue-500 pb-2">Available Files</h2>
-            <div id="files-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- File cards will be injected here -->
+        <main class="flex-grow">
+            <!-- Home Page -->
+            <div id="home-page" class="p-4 space-y-6 sub-page">
+                <div class="card-bg p-4 rounded-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm">Your Balance</p>
+                        <p class="text-3xl font-bold"><span id="coin-balance">0</span> Coins</p>
+                    </div>
+                    <button id="home-withdraw-btn" class="bg-white text-black font-semibold px-6 py-2 rounded-lg">Withdraw</button>
+                </div>
+                <section>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-semibold">Daily Tasks</h2>
+                            <p class="text-sm text-gray-400 mb-4">Complete tasks to get rewards.</p>
+                        </div>
+                        <p class="text-sm text-gray-400">Ads Left: <span id="ads-left-count">...</span></p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-orange-500 p-3 rounded-lg flex items-center justify-between text-black">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">🤩</span><div><h3 class="font-bold">Watch Short Ad</h3><p class="text-xs font-medium">Rewarded Interstitial</p></div></div>
+                            <button class="bg-white text-orange-500 font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('interstitial')">Claim</button>
+                        </div>
+                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">😎</span><div><h3 class="font-semibold">Click for Reward</h3><p class="text-xs text-gray-400">Rewarded Popup</p></div></div>
+                            <button class="bg-white text-black font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('popup')">Claim</button>
+                        </div>
+                         <div class="card-bg p-3 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">👀</span><div><h3 class="font-semibold">Watch a Video</h3><p class="text-xs text-gray-400">In-App Interstitial</p></div></div>
+                            <button class="bg-gray-700 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('inApp')">Start</button>
+                        </div>
+                        <div class="card-bg p-3 rounded-lg flex items-center justify-between">
+                            <div class="flex items-center space-x-3"><span class="text-3xl">🎮</span><div><h3 class="font-semibold">Play Mini App</h3><p class="text-xs text-gray-400">Get a big reward!</p></div></div>
+                            <button class="bg-blue-500 text-white font-bold px-6 py-2 rounded-lg text-sm btn" onclick="claimReward('miniApp')">Play</button>
+                        </div>
+                    </div>
+                </section>
             </div>
-            <div id="no-results" class="hidden text-center py-12">
-                <i class="fas fa-file-excel text-5xl text-gray-400 mb-4"></i>
-                <p data-key="no_results_text" class="text-xl text-gray-600">No files found matching your search.</p>
-            </div>
-        </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-3 px-5 rounded-lg shadow-2xl opacity-0 transform translate-y-10 transition-all duration-500">
-        <p id="toast-message"></p>
+            <!-- Wallet Page -->
+            <div id="wallet-page" class="p-4 space-y-6 sub-page">
+                <h2 class="text-xl font-bold text-center">Mera Wallet</h2>
+                <div class="card-bg p-4 rounded-lg">
+                    <h3 class="font-semibold mb-3">Earnings Withdraw Karein</h3>
+                    <p class="text-sm text-gray-400 mb-1">Current Balance: <span class="font-bold text-accent"><span id="wallet-coin-balance">0</span> Coins</span></p>
+                    <p class="text-sm text-gray-400 mb-2">Minimum Withdrawal: <span id="min-withdrawal-info">...</span> Coins</p>
+                    <p class="text-sm text-gray-400 mb-4 font-semibold" id="coin-value-info">...</p>
+                    <input id="withdraw-amount" type="number" placeholder="Coin amount daalein" class="w-full p-3 rounded-lg input-field mb-3">
+                    <select id="withdraw-method" class="w-full p-3 rounded-lg input-field mb-3"></select>
+                    <div id="payment-details-container"></div>
+                    <button id="withdraw-btn" class="w-full p-3 rounded-lg btn-accent mt-3">Request Withdrawal</button>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Withdrawal History</h3>
+                    <div id="withdrawal-history-list" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Refer Page -->
+            <div id="refer-page" class="p-4 space-y-6 sub-page">
+                 <h2 class="text-xl font-bold text-center">Refer & Earn</h2>
+                 <div class="card-bg p-6 rounded-lg text-center">
+                     <p class="text-gray-400 mb-2">Aapka Referral Code</p>
+                     <div class="bg-gray-800 p-3 rounded-lg flex items-center justify-center mb-4">
+                         <span id="referral-code" class="text-2xl font-bold tracking-widest">LOADING...</span>
+                         <button id="copy-code-btn" class="ml-4"><i data-lucide="copy" class="w-6 h-6 text-gray-400"></i></button>
+                     </div>
+                     <p class="text-sm text-gray-300">Apne dosto ke saath code share karein.</p>
+                 </div>
+                 <button id="share-btn" class="w-full p-3 rounded-lg btn-accent">Apna Code Share Karein</button>
+                 <div class="card-bg p-4 rounded-lg mt-6">
+                    <h3 class="font-semibold mb-3 text-center">Kisi ka Referral Code Hai?</h3>
+                    <input id="enter-referral-code" type="text" placeholder="Yahan code daalein" class="w-full p-3 rounded-lg input-field mb-3">
+                    <button id="apply-referral-btn" class="w-full p-3 rounded-lg btn-outline-accent">Code Apply Karein</button>
+                 </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="p-4 space-y-6 sub-page">
+                <h2 class="text-xl font-bold text-center mb-4">Profile</h2>
+                <div class="flex flex-col items-center">
+                    <img src="https://placehold.co/100x100/1e1e1e/ff8c00?text=U" class="rounded-full mb-2">
+                    <h2 id="profile-name" class="text-xl font-bold">User Name</h2>
+                    <p id="profile-email" class="text-gray-400">user@email.com</p>
+                </div>
+                <button id="logout-btn" class="w-full mt-6 p-3 rounded-lg bg-red-600 text-white font-bold">Logout</button>
+            </div>
+            
+            <!-- Notifications Page -->
+            <div id="notifications-page" class="p-4 space-y-4 sub-page">
+                <h2 class="text-xl font-bold text-center">Notifications</h2>
+                <div id="notifications-list" class="space-y-3"></div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav sticky bottom-0 grid grid-cols-4 items-center text-center py-2 card-bg">
+            <a href="#" class="nav-link" data-page="home-page"><i data-lucide="home" class="mx-auto w-6 h-6"></i><span class="text-xs">Home</span></a>
+            <a href="#" class="nav-link" data-page="wallet-page"><i data-lucide="wallet" class="mx-auto w-6 h-6"></i><span class="text-xs">Wallet</span></a>
+            <a href="#" class="nav-link" data-page="refer-page"><i data-lucide="users" class="mx-auto w-6 h-6"></i><span class="text-xs">Refer & Earn</span></a>
+            <a href="#" class="nav-link" data-page="profile-page"><i data-lucide="user" class="mx-auto w-6 h-6"></i><span class="text-xs">Profile</span></a>
+        </nav>
     </div>
     
-    <!-- Language Selection Modal -->
-    <div id="language-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-lg shadow-2xl text-center fade-in">
-            <h2 class="text-2xl font-bold mb-6">Choose Your Language</h2>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button class="lang-btn px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors" data-lang="en">English</button>
-                <button class="lang-btn px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors" data-lang="hi">हिन्दी</button>
-                <button class="lang-btn px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-colors" data-lang="bn">বাংলা</button>
-            </div>
+    <div id="custom-alert" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-lg p-6 w-full max-w-sm text-center">
+            <p id="alert-message" class="mb-4"></p>
+            <button id="alert-ok-btn" class="btn-accent px-6 py-2 rounded-lg">OK</button>
         </div>
     </div>
 
-    <!-- Footer with Ad Slot 3 -->
-    <footer class="bg-gray-100 py-6 mt-10">
-        <div class="container mx-auto px-4">
-            <div id="ad-container-3" class="my-4 flex justify-center min-h-[50px]"></div>
-            <p class="text-center text-gray-600">&copy; 2025 Webapp Sikho. All rights reserved.</p>
-        </div>
-    </footer>
-
-
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
         const firebaseConfig = {
             apiKey: "AIzaSyByrsaqAuWRq69PICaL3oy3X6P3Dt1-21A",
             authDomain: "myapp-51acb.firebaseapp.com",
-            databaseURL: "https://myapp-51acb-default-rtdb.firebaseio.com",
             projectId: "myapp-51acb",
             storageBucket: "myapp-51acb.appspot.com",
             messagingSenderId: "1038001610366",
             appId: "1:1038001610366:web:93a25091ee0c2f212d422f"
         };
         
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const sliderWrapper = document.getElementById('slider-wrapper');
-        const sliderDotsContainer = document.getElementById('slider-dots');
-        const filesGrid = document.getElementById('files-grid');
-        const searchInput = document.getElementById('searchInput');
-        const noResultsMessage = document.getElementById('no-results');
-        const languageModal = document.getElementById('language-modal');
+        let currentUser = null;
+        let userData = null;
+        let appConfig = {};
 
-        let sliderInterval;
-        let currentSlide = 0;
-        let timerDuration = 10; // Default wait time in seconds
-        let currentLang = 'en';
+        const loader = document.getElementById('loader');
+        const coinBalanceEl = document.getElementById('coin-balance');
+        const walletCoinBalanceEl = document.getElementById('wallet-coin-balance');
+        const profileNameEl = document.getElementById('profile-name');
+        const profileEmailEl = document.getElementById('profile-email');
+        const referralCodeEl = document.getElementById('referral-code');
+        const minWithdrawalInfoEl = document.getElementById('min-withdrawal-info');
+        const coinValueInfoEl = document.getElementById('coin-value-info');
+        const withdrawMethodSelect = document.getElementById('withdraw-method');
+        const notificationDot = document.getElementById('notification-dot');
+        const adsLeftCountEl = document.getElementById('ads-left-count');
+        const paymentDetailsContainer = document.getElementById('payment-details-container');
 
-        const translations = {
-            en: { main_title: "Webapp Sikho", main_subtitle: "Watch Ads, Unlock, and Download Files for Free!", search_placeholder: "Search for files...", available_files: "Available Files", no_results_text: "No files found matching your search.", no_slides: "No promotional slides available.", slides_error: "Could not load slides.", no_files_uploaded: "No files have been uploaded yet.", files_error: "Could not load files. Please try again later.", unlock_button: "Unlock ({adCount}/{requiredCount})", download_now_button: "Download Now", toast_download_starting: "Your download is starting...", toast_progress: "Progress: {adCount}/{requiredCount}", toast_unlocked: "Download unlocked!", toast_ad_error: "Could not load ad. Please try again.", loading_ad: "Loading ad...", verifying_button: "Please wait {countdown}s", },
-            hi: { main_title: "वेबऐप सीखो", main_subtitle: "विज्ञापन देखें, अनलॉक करें और मुफ्त में फाइलें डाउनलोड करें!", search_placeholder: "फ़ाइलों के लिए खोजें...", available_files: "उपलब्ध फाइलें", no_results_text: "आपकी खोज से कोई फ़ाइल मेल नहीं खाती।", no_slides: "कोई प्रचार स्लाइड उपलब्ध नहीं है।", slides_error: "स्लाइड लोड नहीं हो सकीं।", no_files_uploaded: "अभी तक कोई फ़ाइल अपलोड नहीं की गई है।", files_error: "फ़ाइलें लोड नहीं हो सकीं। कृपया बाद में पुनः प्रयास करें।", unlock_button: "अनलॉक ({adCount}/{requiredCount})", download_now_button: "अभी डाउनलोड करें", toast_download_starting: "आपका डाउनलोड शुरू हो रहा है...", toast_progress: "प्रगति: {adCount}/{requiredCount}", toast_unlocked: "डाउनलोड अनलॉक हो गया!", toast_ad_error: "विज्ञापन लोड नहीं हो सका। कृपया पुनः प्रयास करें।", loading_ad: "विज्ञापन लोड हो रहा है...", verifying_button: "कृपया प्रतीक्षा करें... {countdown}s", },
-            bn: { main_title: "ওয়েবঅ্যাপ শিখুন", main_subtitle: "বিজ্ঞাপন দেখুন, আনলক করুন এবং বিনামূল্যে ফাইল ডাউনলোড করুন!", search_placeholder: "ফাইলের জন্য অনুসন্ধান করুন...", available_files: "উপলব্ধ ফাইল", no_results_text: "আপনার অনুসন্ধানের সাথে মেলে এমন কোনো ফাইল পাওয়া যায়নি।", no_slides: "কোন প্রচারমূলক স্লাইড উপলব্ধ নেই।", slides_error: "স্লাইড লোড করা যায়নি।", no_files_uploaded: "এখনো কোনো ফাইল আপলোড করা হয়নি।", files_error: "ফাইল লোড করা যায়নি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।", unlock_button: "আনলক করুন ({adCount}/{requiredCount})", download_now_button: "এখনই ডাউনলোড করুন", toast_download_starting: "আপনার ডাউনলোড শুরু হচ্ছে...", toast_progress: " অগ্রগতি: {adCount}/{requiredCount}", toast_unlocked: "ডাউনলোড আনলক করা হয়েছে!", toast_ad_error: "বিজ্ঞাপন লোড করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।", loading_ad: "বিজ্ঞাপন লোড হচ্ছে...", verifying_button: "অনুগ্রহ করে অপেক্ষা করুন... {countdown}s", }
+        window.onload = () => {
+            lucide.createIcons();
+            setupEventListeners();
+            showMainPage('auth-section');
+            loader.style.display = 'none';
+            onAuthStateChanged(auth, handleAuthStateChange);
         };
 
-        function applyLanguage(lang) {
-            currentLang = lang;
-            document.documentElement.lang = lang;
-            localStorage.setItem('userLanguage', lang);
-            document.querySelectorAll('[data-key]').forEach(elem => {
-                const key = elem.getAttribute('data-key');
-                if (translations[lang][key]) elem.textContent = translations[lang][key];
-            });
-            document.querySelectorAll('[data-key-placeholder]').forEach(elem => {
-                const key = elem.getAttribute('data-key-placeholder');
-                if (translations[lang][key]) elem.placeholder = translations[lang][key];
-            });
-            languageModal.classList.add('hidden');
-            loadUserPageData();
-        }
-
-        function getText(key, params = {}) {
-            let text = translations[currentLang][key] || key;
-            for (const param in params) text = text.replace(`{${param}}`, params[param]);
-            return text;
-        }
-
-        function showToast(key, params = {}) {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            toastMessage.textContent = getText(key, params);
-            toast.classList.remove('opacity-0', 'translate-y-10');
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-10');
-            }, 3000);
-        }
-
-        function renderAd(containerId, adCode) {
-            if (!adCode) return;
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.innerHTML = adCode;
-            const scripts = Array.from(container.getElementsByTagName('script'));
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-            });
-        }
-
-        async function loadBannerAds() {
-            try {
-                const docRef = doc(db, "settings", "ads");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const adData = docSnap.data();
-                    renderAd('ad-container-1', adData.adSlot1);
-                    renderAd('ad-container-2', adData.adSlot2);
-                    renderAd('ad-container-3', adData.adSlot3);
-                }
-            } catch (error) {
-                console.error("Error loading banner ads:", error);
-            }
-        }
-
-        async function loadUserPageData() {
-            loadBannerAds();
-            try {
-                const settingsRef = doc(db, "settings", "general");
-                const docSnap = await getDoc(settingsRef);
-                if (docSnap.exists()) {
-                    timerDuration = docSnap.data().timerDuration || 10;
-                }
-            } catch (error) {
-                console.error("Could not fetch settings, using defaults.", error);
-            }
-
-            try {
-                const q = query(collection(db, "sliders"));
-                const sliderSnapshot = await getDocs(q);
-                sliderWrapper.innerHTML = '';
-                sliderDotsContainer.innerHTML = '';
-                const slides = [];
-                sliderSnapshot.forEach(doc => slides.push(doc.data()));
-                if (slides.length > 0) {
-                    slides.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-                    slides.forEach((slide, index) => {
-                        const slideEl = document.createElement('div');
-                        slideEl.className = 'slider-item';
-                        const imageHTML = `<img src="${slide.imageUrl}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/1280x400/cccccc/ffffff?text=Image+Not+Found';">`;
-                        slideEl.innerHTML = slide.linkUrl ? `<a href="${slide.linkUrl}" target="_blank" rel="noopener noreferrer">${imageHTML}</a>` : imageHTML;
-                        sliderWrapper.appendChild(slideEl);
-                        const dotEl = document.createElement('div');
-                        dotEl.className = 'slider-dot';
-                        dotEl.dataset.index = index;
-                        sliderDotsContainer.appendChild(dotEl);
-                    });
-                    setupSlider(slides.length);
-                } else {
-                    sliderWrapper.innerHTML = `<div class="slider-item flex items-center justify-center bg-gray-200 rounded-xl"><p class="text-gray-600">${getText('no_slides')}</p></div>`;
-                }
-            } catch (error) {
-                console.error("Error loading sliders:", error);
-                sliderWrapper.innerHTML = `<div class="slider-item flex items-center justify-center bg-red-100 rounded-xl"><p class="text-red-600">${getText('slides_error')}</p></div>`;
-            }
-            
-            try {
-                const q = query(collection(db, "files"));
-                const filesSnapshot = await getDocs(q);
-                filesGrid.innerHTML = '';
-                if (filesSnapshot.empty) {
-                    filesGrid.innerHTML = `<p class="col-span-full text-center text-gray-500">${getText('no_files_uploaded')}</p>`;
+        async function handleAuthStateChange(user) {
+            if (user) {
+                loader.style.display = 'flex';
+                currentUser = user;
+                await fetchUserData();
+                if (userData.isBlocked) {
+                    showAlert("Aapka account block kar diya gaya hai.");
+                    await signOut(auth);
+                    loader.style.display = 'none';
                     return;
                 }
-                const files = [];
-                filesSnapshot.forEach(doc => files.push({ id: doc.id, ...doc.data() }));
-                files.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-                files.forEach(file => {
-                    const card = document.createElement('div');
-                    card.className = 'file-card bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 hover:shadow-xl';
-                    card.innerHTML = `
-                        <img src="${file.thumbnailUrl}" alt="${file.title}" class="w-full aspect-video object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x225/cccccc/ffffff?text=Image+Not+Found';">
-                        <div class="p-4">
-                            <h3 class="text-lg font-bold text-gray-900 truncate" title="${file.title}">${file.title}</h3>
-                            <p class="text-gray-600 text-sm mt-1 h-10 overflow-hidden">${file.description}</p>
-                            <button data-id="${file.id}" data-url="${file.downloadUrl}" data-required-ads="${file.requiredAds || 10}" class="download-btn w-full mt-4 py-2.5 px-4 rounded-lg text-white font-semibold transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                                <i class="fas"></i>
-                                <span></span>
-                            </button>
-                        </div>
-                    `;
-                    filesGrid.appendChild(card);
-                    updateButtonState(card.querySelector('.download-btn'));
-                });
-            } catch (error) {
-                console.error("Error loading files:", error);
-                filesGrid.innerHTML = `<p class="col-span-full text-center text-red-500">${getText('files_error')}</p>`;
-            }
-        }
-
-        function setupSlider(slideCount) {
-            if (slideCount <= 1) return;
-            const dots = document.querySelectorAll('.slider-dot');
-            function goToSlide(slideIndex) {
-                currentSlide = (slideIndex + slideCount) % slideCount;
-                sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-                dots.forEach(dot => dot.classList.remove('active'));
-                if(dots[currentSlide]) dots[currentSlide].classList.add('active');
-            }
-            if (sliderInterval) clearInterval(sliderInterval);
-            sliderInterval = setInterval(() => goToSlide(currentSlide + 1), 3000);
-            dots.forEach(dot => dot.addEventListener('click', (e) => goToSlide(parseInt(e.target.dataset.index))));
-            goToSlide(0);
-        }
-
-        function updateButtonState(button) {
-            const fileId = button.dataset.id;
-            const requiredCount = parseInt(button.dataset.requiredAds);
-            const adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
-            const isUnlocked = adCount >= requiredCount;
-            const buttonTextEl = button.querySelector('span');
-            const buttonIconEl = button.querySelector('i');
-            button.disabled = false;
-            const lockedColors = ['bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'hover:from-blue-600', 'hover:to-purple-700'];
-            const unlockedColors = ['bg-gradient-to-r', 'from-green-400', 'to-green-600', 'hover:from-green-500', 'hover:to-green-700'];
-            button.classList.remove(...lockedColors, ...unlockedColors);
-            if (isUnlocked) {
-                buttonTextEl.textContent = getText('download_now_button');
-                buttonIconEl.className = 'fas fa-download';
-                button.classList.add(...unlockedColors);
+                await fetchAppConfig();
+                await checkNewNotifications();
+                updateUI();
+                showMainPage('app-container');
+                navigateTo('home-page');
+                loader.style.display = 'none';
             } else {
-                buttonTextEl.textContent = getText('unlock_button', { adCount, requiredCount });
-                buttonIconEl.className = 'fas fa-lock';
-                button.classList.add(...lockedColors);
+                currentUser = null;
+                userData = null;
+                showMainPage('auth-section');
             }
         }
 
-        function handleDownloadClick(e) {
-            const button = e.target.closest('.download-btn');
-            if (!button || button.disabled) return;
-            const fileId = button.dataset.id;
-            const downloadUrl = button.dataset.url;
-            const requiredCount = parseInt(button.dataset.requiredAds);
-            const adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
-            if (adCount >= requiredCount) {
-                showToast('toast_download_starting');
-                window.open(downloadUrl, '_blank');
+        async function fetchUserData() {
+            if (!currentUser) return;
+            const userRef = doc(db, "users", currentUser.uid);
+            try {
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    userData = userSnap.data();
+                } else {
+                    const ownReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    const defaultUserData = {
+                        uid: currentUser.uid, name: currentUser.email.split('@')[0], email: currentUser.email,
+                        balance: 50, referralCode: ownReferralCode, referredBy: null,
+                        lastNotificationCheck: new Date(),
+                        createdAt: serverTimestamp(),
+                        dailyAdCount: 0, lastAdWatchDate: new Date().toISOString().split('T')[0], isBlocked: false
+                    };
+                    await setDoc(userRef, defaultUserData);
+                    userData = defaultUserData;
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                showAlert("User data load karne mein error aayi.");
+            }
+        }
+
+        async function fetchAppConfig() {
+            const configRef = doc(db, "config", "main");
+            try {
+                const configSnap = await getDoc(configRef);
+                appConfig = configSnap.exists() ? configSnap.data() : { minWithdrawal: 5000, paymentMethods: ["UPI", "Paytm"], dailyAdLimit: 10, coinValueCoins: 1000, coinValueInr: 10 };
+            } catch (error) {
+                console.error("Error fetching app config:", error);
+            }
+        }
+        
+        function updateUI() {
+            if (!userData) return;
+            const balance = userData.balance || 0;
+            coinBalanceEl.textContent = balance;
+            walletCoinBalanceEl.textContent = balance;
+            profileNameEl.textContent = userData.name || 'No Name';
+            profileEmailEl.textContent = userData.email || 'No Email';
+            referralCodeEl.textContent = userData.referralCode || '...';
+            minWithdrawalInfoEl.textContent = `${appConfig.minWithdrawal || 5000} Coins`;
+            coinValueInfoEl.textContent = `${appConfig.coinValueCoins || 1000} Coins = ₹${appConfig.coinValueInr || 10}`;
+            withdrawMethodSelect.innerHTML = '';
+            (appConfig.paymentMethods || []).forEach(method => {
+                const option = document.createElement('option');
+                option.value = method;
+                option.textContent = method;
+                withdrawMethodSelect.appendChild(option);
+            });
+            updateDynamicPaymentFields();
+            updateAdsLeftCount();
+        }
+
+        function updateAdsLeftCount() {
+            const today = new Date().toISOString().split('T')[0];
+            if (userData.lastAdWatchDate !== today) {
+                userData.dailyAdCount = 0;
+            }
+            const adsLeft = Math.max(0, (appConfig.dailyAdLimit || 10) - userData.dailyAdCount);
+            adsLeftCountEl.textContent = adsLeft;
+        }
+
+        function updateDynamicPaymentFields() {
+            const selectedMethod = withdrawMethodSelect.value.toLowerCase();
+            let placeholder = "Detail Daalein";
+            if (selectedMethod.includes('upi')) placeholder = "Apni UPI ID Daalein";
+            if (selectedMethod.includes('paytm')) placeholder = "Apna Paytm Number Daalein";
+            paymentDetailsContainer.innerHTML = `<input id="payment-detail-input" type="text" placeholder="${placeholder}" class="w-full p-3 rounded-lg input-field">`;
+        }
+
+        function showMainPage(pageId) {
+            document.querySelectorAll('.main-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active', 'text-accent');
+                if (link.dataset.page === pageId) link.classList.add('active', 'text-accent');
+            });
+        }
+        window.navigateTo = navigateTo;
+
+        function setupEventListeners() {
+            document.getElementById('show-signup').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('login-view').classList.add('hidden'); document.getElementById('signup-view').classList.remove('hidden'); });
+            document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('signup-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); });
+            document.getElementById('signup-btn').addEventListener('click', handleSignup);
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.dataset.page;
+                    if (pageId === 'wallet-page') loadWithdrawalHistory();
+                    navigateTo(pageId);
+                });
+            });
+            document.getElementById('notification-bell').addEventListener('click', () => { navigateTo('notifications-page'); loadNotifications(); });
+            document.getElementById('copy-code-btn').addEventListener('click', copyReferralCode);
+            document.getElementById('share-btn').addEventListener('click', shareReferralCode);
+            document.getElementById('withdraw-btn').addEventListener('click', handleWithdrawal);
+            document.getElementById('home-withdraw-btn').addEventListener('click', () => navigateTo('wallet-page'));
+            document.getElementById('apply-referral-btn').addEventListener('click', handleApplyReferralCode);
+            withdrawMethodSelect.addEventListener('change', updateDynamicPaymentFields);
+        }
+
+        async function handleSignup() {
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            if (!name || !email || !password) return showAlert("Kripya sabhi fields bharein.");
+            loader.style.display = 'flex';
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showAlert(error.message);
+                loader.style.display = 'none';
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) return showAlert("Kripya email aur password daalein.");
+            loader.style.display = 'flex';
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showAlert(error.message);
+                loader.style.display = 'none';
+            }
+        }
+
+        async function handleLogout() { await signOut(auth); }
+        
+        async function checkNewNotifications() {
+            const lastCheck = userData.lastNotificationCheck;
+            if (!lastCheck || typeof lastCheck.seconds === 'undefined') {
+                console.log("lastNotificationCheck is not a valid timestamp yet. Skipping check.");
                 return;
             }
-            processAdUnlock(button);
+            const q = query(collection(db, "notifications"), where("createdAt", ">", lastCheck), limit(1));
+            const querySnapshot = await getDocs(q);
+            notificationDot.style.display = querySnapshot.empty ? 'none' : 'block';
         }
 
-        async function processAdUnlock(button) {
-            button.disabled = true;
-            const buttonTextEl = button.querySelector('span');
-            const fileId = button.dataset.id;
-            const requiredCount = parseInt(button.dataset.requiredAds);
-            let adCount = parseInt(localStorage.getItem(`adCount_${fileId}`) || 0);
+        async function loadNotifications() {
+            const listEl = document.getElementById('notifications-list');
+            listEl.innerHTML = '<p class="text-gray-400">Loading...</p>';
+            notificationDot.style.display = 'none';
+            const q = query(collection(db, "notifications"), orderBy("createdAt", "desc"));
             try {
-                buttonTextEl.textContent = getText('loading_ad');
-                await show_9745051();
-                adCount++;
-                localStorage.setItem(`adCount_${fileId}`, adCount);
-                if (adCount >= requiredCount) {
-                    showToast('toast_unlocked');
-                    updateButtonState(button);
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    listEl.innerHTML = '<p class="text-gray-400 text-center">Koi notifications nahi hain.</p>';
                     return;
                 }
-                showToast('toast_progress', { adCount, requiredCount });
-                let countdown = timerDuration;
-                buttonTextEl.textContent = getText('verifying_button', { countdown });
-                const timerInterval = setInterval(() => {
-                    countdown--;
-                    if (countdown > 0) {
-                        buttonTextEl.textContent = getText('verifying_button', { countdown });
-                    } else {
-                        clearInterval(timerInterval);
-                        updateButtonState(button);
-                    }
-                }, 1000);
-            } catch (err) {
-                console.error("Ad error:", err);
-                showToast('toast_ad_error');
-                updateButtonState(button);
+                listEl.innerHTML = '';
+                querySnapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const date = msg.createdAt ? msg.createdAt.toDate().toLocaleDateString() : 'N/A';
+                    listEl.innerHTML += `<div class="card-bg p-4 rounded-lg"><div class="flex justify-between items-center mb-1"><h3 class="font-bold">${msg.title}</h3><p class="text-xs text-gray-400">${date}</p></div><p class="text-sm text-gray-300">${msg.message}</p></div>`;
+                });
+                await updateDoc(doc(db, "users", currentUser.uid), { lastNotificationCheck: serverTimestamp() });
+            } catch (error) {
+                console.error("Error loading notifications:", error);
+                listEl.innerHTML = '<p class="text-red-400">Notifications load karne mein error aayi.</p>';
             }
         }
 
-        function handleSearch() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const fileCards = document.querySelectorAll('.file-card');
-            let visibleCount = 0;
-            fileCards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const description = card.querySelector('p').textContent.toLowerCase();
-                if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
+        async function loadWithdrawalHistory() {
+            const historyList = document.getElementById('withdrawal-history-list');
+            historyList.innerHTML = '<p class="text-gray-400">History load ho rahi hai...</p>';
+            const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
+            try {
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    historyList.innerHTML = '<p class="text-gray-400">Aapne abhi tak koi withdrawal nahi kiya hai.</p>';
+                    return;
                 }
-            });
-            noResultsMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+                const withdrawals = [];
+                querySnapshot.forEach(doc => withdrawals.push(doc.data()));
+                withdrawals.sort((a, b) => (b.requestedAt?.seconds || 0) - (a.requestedAt?.seconds || 0));
+                historyList.innerHTML = '';
+                withdrawals.forEach(request => {
+                    const status = request.status;
+                    let statusColor = 'text-yellow-400';
+                    if (status === 'approved') statusColor = 'text-green-400';
+                    else if (status === 'rejected') statusColor = 'text-red-400';
+                    const date = request.requestedAt ? request.requestedAt.toDate().toLocaleDateString() : 'N/A';
+                    historyList.innerHTML += `<div class="card-bg p-3 rounded-lg flex items-center justify-between"><div><p class="font-semibold">${request.amount} Coins - ${request.method}</p><p class="text-xs text-gray-400">${date}</p></div><p class="font-bold ${statusColor} capitalize">${status}</p></div>`;
+                });
+            } catch (error) {
+                console.error("Error fetching withdrawal history: ", error);
+                historyList.innerHTML = '<p class="text-red-400">History load karne mein error aayi.</p>';
+            }
+        }
+        
+        async function handleApplyReferralCode() {
+            if (userData.referredBy) return showAlert("Aap pehle hi ek referral code istemal kar chuke hain.");
+            const codeInput = document.getElementById('enter-referral-code');
+            const code = codeInput.value.trim().toUpperCase();
+            if (!code) return showAlert("Kripya ek code daalein.");
+            if (code === userData.referralCode) return showAlert("Aap apna khud ka code istemal nahi kar sakte.");
+            loader.style.display = 'flex';
+            await applyReferralBonus(code, true);
+            codeInput.value = '';
+            loader.style.display = 'none';
         }
 
-        window.addEventListener('load', () => {
-            const savedLang = localStorage.getItem('userLanguage');
-            if (savedLang && translations[savedLang]) {
-                applyLanguage(savedLang);
-            } else {
-                languageModal.classList.remove('hidden');
+        async function applyReferralBonus(referrerCode, isManualApply = false) {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("referralCode", "==", referrerCode));
+            try {
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const referrerDoc = querySnapshot.docs[0];
+                    const referrerRef = doc(db, "users", referrerDoc.id);
+                    const referrerData = referrerDoc.data();
+                    await updateDoc(referrerRef, { balance: (referrerData.balance || 0) + 100 });
+                    const newUserRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(newUserRef, { balance: (userData.balance || 0) + 100, referredBy: referrerCode });
+                    userData.balance += 100; userData.referredBy = referrerCode;
+                    updateUI();
+                    if(isManualApply) showAlert("Code safaltapoorvak apply ho gaya! Aapko 100 coins mile hain.");
+                } else {
+                    if(isManualApply) showAlert("Galat referral code.");
+                }
+            } catch(error) {
+                console.error("Error applying referral bonus: ", error);
+                if(isManualApply) showAlert("Code apply karte samay error aayi.");
             }
-        });
+        }
 
-        filesGrid.addEventListener('click', handleDownloadClick);
-        searchInput.addEventListener('keyup', handleSearch);
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
-        });
+        async function updateBalance(amount) {
+            if (!currentUser) return;
+            const newBalance = (userData.balance || 0) + amount;
+            const userRef = doc(db, "users", currentUser.uid);
+            await updateDoc(userRef, { balance: newBalance });
+            userData.balance = newBalance;
+            updateUI();
+        }
+
+        async function handleWithdrawal() {
+            const amount = parseInt(document.getElementById('withdraw-amount').value);
+            const method = document.getElementById('withdraw-method').value;
+            const paymentDetailInput = document.getElementById('payment-detail-input');
+            const paymentDetail = paymentDetailInput ? paymentDetailInput.value.trim() : '';
+            const minWithdrawal = appConfig.minWithdrawal || 5000;
+
+            if (!amount || amount <= 0) return showAlert("Kripya valid amount daalein.");
+            if (amount < minWithdrawal) return showAlert(`Minimum withdrawal ${minWithdrawal} coins hai.`);
+            if (amount > userData.balance) return showAlert("Insufficient balance.");
+            if (!paymentDetail) return showAlert("Kripya payment detail daalein (UPI ID ya Paytm Number).");
+
+            try {
+                await updateBalance(-amount);
+                await addDoc(collection(db, "withdrawals"), {
+                    userId: currentUser.uid, userName: userData.name, userEmail: userData.email,
+                    amount: amount, method: method, paymentDetail: paymentDetail, status: "pending", requestedAt: serverTimestamp()
+                });
+                showAlert("Withdrawal request safaltapoorvak submit ho gayi hai!");
+                document.getElementById('withdraw-amount').value = '';
+                paymentDetailInput.value = '';
+            } catch (error) {
+                showAlert("Request submit karne mein error: " + error.message);
+                await updateBalance(amount);
+            }
+        }
+
+        function copyReferralCode() {
+            const textToCopy = referralCodeEl.textContent;
+            const textArea = document.createElement("textarea");
+            textArea.style.position = 'fixed'; textArea.style.top = '-100px';
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.focus(); textArea.select();
+            try {
+                document.execCommand('copy');
+                showAlert("Referral code copy ho gaya!");
+            } catch (err) {
+                showAlert("Code copy karne mein विफल.");
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        function shareReferralCode() {
+            const text = `CashReward join karein aur paise kamayein! Bonus paane ke liye mera referral code use karein: ${userData.referralCode}`;
+            if (navigator.share) {
+                navigator.share({ title: 'CashReward Join Karein!', text: text, url: window.location.href })
+                    .catch((error) => console.error("Share failed:", error));
+            } else {
+                copyReferralCode();
+                showAlert("Share feature available nahi hai. Iske bajaye referral code copy kar diya gaya hai!");
+            }
+        }
+
+        window.claimReward = async function(taskType) {
+            const today = new Date().toISOString().split('T')[0];
+            const userRef = doc(db, "users", currentUser.uid);
+
+            if (userData.lastAdWatchDate !== today) {
+                await updateDoc(userRef, { dailyAdCount: 0, lastAdWatchDate: today });
+                userData.dailyAdCount = 0;
+                userData.lastAdWatchDate = today;
+            }
+
+            if (userData.dailyAdCount >= (appConfig.dailyAdLimit || 10)) {
+                return showAlert("Aapki aaj ki ad dekhne ki seema poori ho gayi hai.");
+            }
+            
+            if (typeof window.show_9391539 !== 'function') {
+                return showAlert("Ad service abhi uplabdh nahi hai. Kripya baad mein prayas karein.");
+            }
+            
+            let adPromise;
+            switch(taskType) {
+                case 'interstitial':
+                    adPromise = window.show_9391539();
+                    break;
+                case 'popup':
+                    adPromise = window.show_9391539('pop');
+                    break;
+                case 'inApp':
+                    adPromise = window.show_9391539({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+                    break;
+                case 'miniApp':
+                    adPromise = window.show_9391539();
+                    break;
+                default:
+                    return;
+            }
+
+            adPromise.then(async () => {
+                const newCount = (userData.dailyAdCount || 0) + 1;
+                await updateDoc(userRef, { dailyAdCount: newCount });
+                userData.dailyAdCount = newCount;
+                
+                let rewardAmount = 0;
+                if (taskType === 'miniApp') {
+                    rewardAmount = 100; // Mini App ka zyada reward
+                } else if (taskType !== 'inApp') {
+                    rewardAmount = 50;
+                }
+
+                if (rewardAmount > 0) {
+                    updateBalance(rewardAmount);
+                    showAlert(`Badhai ho! Aapne ${rewardAmount} coins jeete hain.`);
+                }
+                updateAdsLeftCount();
+            }).catch(e => {
+                console.error("Ad error:", e);
+                showAlert('Ad nahi dikhaya ja saka. Kripya baad mein prayas karein.');
+            });
+        }
+
+        function showAlert(message) {
+            document.getElementById('alert-message').textContent = message;
+            document.getElementById('custom-alert').classList.remove('hidden');
+            document.getElementById('alert-ok-btn').onclick = () => {
+                document.getElementById('custom-alert').classList.add('hidden');
+            };
+        }
+        window.showAlert = showAlert;
+
     </script>
 </body>
 </html>
-
