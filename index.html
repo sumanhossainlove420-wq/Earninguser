@@ -608,7 +608,7 @@
 
         const renderReferralSection = () => {
             const container = document.getElementById('referral-section');
-            const refLink = `https://t.me/${appConfig.botUsername}/app?startapp=${tgUser.id}`;
+            const refLink = `https://t.me/{appConfig.botUsername}/app?startapp=${tgUser.id}`;
             container.innerHTML = `<div class="task-container" style="flex-direction: column; align-items: stretch;"><h3>Refer & Earn More!</h3><p>Invite friends and earn ${appConfig.referralBonus || 0} TK per referral.</p><input type="text" id="referral-link" value="${refLink}" readonly style="padding: 10px; text-align: center; border-radius: 8px; border: 1px dashed var(--primary-color); margin: 10px 0;"><button id="copy-ref-link-btn" class="action-btn">Copy Link</button></div>`;
         };
 
