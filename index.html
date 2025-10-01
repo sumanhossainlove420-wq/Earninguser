@@ -401,7 +401,7 @@
         };
 
         const handleMoveToBalance = async () => {
-            if(earningWalletBalance < 10) { tg.showAlert("You need at least 10 TK to move."); return; }
+            if(earningWalletBalance < 100) { tg.showAlert("You need at least 100 TK to move."); return; }
             const btn = document.getElementById('move-to-balance-btn'); btn.disabled = true; btn.textContent = 'Moving...';
             try {
                 const db = firebase.database();
